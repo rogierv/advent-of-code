@@ -14,7 +14,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let answer = input
+    input
         .lines()
         .map(|line| {
             let matches: Vec<(usize, &str)> = match_list(
@@ -26,25 +26,25 @@ pub fn part_two(input: &str) -> Option<u32> {
             );
 
             let mut sorted = matches.clone();
-            sorted.sort_by_key(|k| k.0);
+            sorted.sort_by_key(|&(index, _)| index);
 
-            let f = sorted.first().unwrap().1;
-            let l = sorted.last().unwrap().1;
+            let Some((f, l)) = sorted
+                .first()
+                .and_then(|&(_, first)| sorted.last().map(|&(_, last)| (first, last)))
+            else {
+                return None;
+            };
 
             let c = format!("{}{}", parse_value(f), parse_value(l));
-            c.parse::<u32>().unwrap()
+            c.parse::<u32>().ok()
         })
-        .sum();
-
-    Some(answer)
+        .sum()
 }
 
 fn match_list<'a>(input: &'a str, pattern: Vec<&'a str>) -> Vec<(usize, &'a str)> {
     pattern
         .iter()
-        .map(|s| (input.find(*s), *s))
-        .filter(|v| v.0.is_some())
-        .map(|v| (v.0.unwrap(), v.1))
+        .flat_map(|s| input.find(*s).map(|index| (index, *s)))
         .collect()
 }
 
