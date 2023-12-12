@@ -14,28 +14,27 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let lines: Vec<&str> = input.lines().collect();
+    let answer = input
+        .lines()
+        .map(|line| {
+            let matches: Vec<(usize, &str)> = match_list(
+                line,
+                vec![
+                    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1",
+                    "2", "3", "4", "5", "6", "7", "8", "9",
+                ],
+            );
 
-    let mut answer = 0;
+            let mut sorted = matches.clone();
+            sorted.sort_by_key(|k| k.0);
 
-    for line in lines {
-        let matches: Vec<(usize, &str)> = match_list(
-            line,
-            vec![
-                "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2",
-                "3", "4", "5", "6", "7", "8", "9",
-            ],
-        );
+            let f = sorted.first().unwrap().1;
+            let l = sorted.last().unwrap().1;
 
-        let mut cloned = matches.clone();
-        cloned.sort_by_key(|k| k.0);
-
-        let f = cloned.first().unwrap().1;
-        let l = cloned.last().unwrap().1;
-
-        let c = format!("{}{}", parse_value(f), parse_value(l));
-        answer += c.parse::<u32>().unwrap();
-    }
+            let c = format!("{}{}", parse_value(f), parse_value(l));
+            c.parse::<u32>().unwrap()
+        })
+        .sum();
 
     Some(answer)
 }
